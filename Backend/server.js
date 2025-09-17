@@ -11,15 +11,24 @@ const app = express();
 // ✅ Middleware
 app.use(express.json());
 
-// ✅ Enable CORS for local + Vercel
+// ✅ Enable CORS for local + any Vercel subdomain
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",              // local dev
-      /\.vercel\.app$/                      // allow any Vercel subdomain
-    ],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow requests with no origin (Postman, curl)
+
+      const allowedOrigins = ["http://localhost:5173"];
+      const vercelRegex = /\.vercel\.app$/;
+
+      if (allowedOrigins.includes(origin) || vercelRegex.test(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed for this origin: " + origin));
+      }
+    },
     methods: ["GET", "POST", "DELETE", "PATCH", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // ✅ allows cookies/auth headers
   })
 );
 
