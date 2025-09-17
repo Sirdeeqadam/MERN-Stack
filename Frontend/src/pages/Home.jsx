@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useWorkoutsContext } from "../hooks/useWorkoutsContext";
 import { useAuthContext } from "../hooks/useAuthContext";
+import { workoutService } from "../services/workoutService";
 
 // components
 import WorkoutDetails from "../components/WorkoutDetails";
@@ -15,25 +16,12 @@ const Home = () => {
   useEffect(() => {
     const fetchWorkouts = async () => {
       try {
-        const response = await fetch("/api/workouts", {
-          headers: {  // ✅ fixed
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${user.token}`,
-          },
-        });
-
-        const json = await response.json();
-
-        if (response.ok) {
-          dispatch({ type: "SET_WORKOUTS", payload: json });
-          setError(null);
-        } else {
-          console.error("Failed to fetch workouts:", json.error || json);
-          setError(json.error || "Failed to fetch workouts");
-        }
+        const data = await workoutService.getWorkouts();
+        dispatch({ type: "SET_WORKOUTS", payload: data });
+        setError(null);
       } catch (err) {
         console.error("Error fetching workouts:", err);
-        setError("Unable to connect to server");
+        setError(err.error || "Unable to fetch workouts");
       } finally {
         setLoading(false);
       }

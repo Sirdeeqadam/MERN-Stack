@@ -1,28 +1,20 @@
 import React from "react";
 import { useWorkoutsContext } from "../hooks/useWorkoutsContext";
 import { useAuthContext } from "../hooks/useAuthContext";
+import { workoutService } from "../services/workoutService";
 
 const WorkoutDetails = ({ workout }) => {
   const { dispatch } = useWorkoutsContext();
-  const { user } = useAuthContext()
+  const { user } = useAuthContext();
 
   const handleClick = async () => {
-    if (!user) {
-      return
-    }
+    if (!user) return;
 
-    const response = await fetch(
-      `http://localhost:4000/api/workouts/${workout._id}`,
-      { method: "DELETE", 
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
-      }
-    );  
-    const json = await response.json();
-
-    if (response.ok) {
-      dispatch({ type: "DELETE_WORKOUT", payload: json });
+    try {
+      const deletedWorkout = await workoutService.deleteWorkout(workout._id);
+      dispatch({ type: "DELETE_WORKOUT", payload: deletedWorkout });
+    } catch (err) {
+      console.error("Delete failed:", err.error || err);
     }
   };
 
@@ -46,4 +38,3 @@ const WorkoutDetails = ({ workout }) => {
 };
 
 export default WorkoutDetails;
- 
