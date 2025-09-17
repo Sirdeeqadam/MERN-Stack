@@ -11,14 +11,18 @@ const app = express();
 // ✅ Middleware
 app.use(express.json());
 
-// ✅ Enable CORS for local + any Vercel subdomain
+// ✅ Read allowed origins from .env
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
+  : [];
+
+const vercelRegex = /\.vercel\.app$/;
+
+// ✅ Enable CORS for local + Vercel subdomains
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // allow requests with no origin (Postman, curl)
-
-      const allowedOrigins = ["http://localhost:5173"];
-      const vercelRegex = /\.vercel\.app$/;
+      if (!origin) return callback(null, true); // allow requests without origin (Postman, curl)
 
       if (allowedOrigins.includes(origin) || vercelRegex.test(origin)) {
         callback(null, true);
@@ -28,7 +32,7 @@ app.use(
     },
     methods: ["GET", "POST", "DELETE", "PATCH", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // ✅ allows cookies/auth headers
+    credentials: true,
   })
 );
 
