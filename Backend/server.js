@@ -17,7 +17,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",       // local dev
-      "https://your-frontend.vercel.app" // deployed frontend
+      "https://mern-stack-kohl-chi.vercel.app" // deployed frontend
     ],
     methods: ["GET", "POST", "DELETE", "PATCH", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization"],
