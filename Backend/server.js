@@ -6,36 +6,36 @@ const cors = require("cors");
 const workoutRoutes = require("./routes/workouts");
 const userRoutes = require("./routes/user");
 
-// express app
 const app = express();
 
-// middleware
+// ✅ Middleware
 app.use(express.json());
 
-// ✅ Enable CORS (local + production)
+// ✅ Enable CORS for local + Vercel
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",       // local dev
-      "https://mern-stack-kohl-chi.vercel.app" // deployed frontend
+      "http://localhost:5173",              // local dev
+      /\.vercel\.app$/                      // allow any Vercel subdomain
     ],
     methods: ["GET", "POST", "DELETE", "PATCH", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// logger
+// ✅ Logger
 app.use((req, res, next) => {
   console.log(req.path, req.method);
   next();
 });
 
-// ✅ routes
+// ✅ Routes
 app.use("/api/workouts", workoutRoutes);
 app.use("/api/user", userRoutes);
 
 // ✅ DB connection + server start
 const PORT = process.env.PORT || 4000;
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
@@ -45,5 +45,5 @@ mongoose
     });
   })
   .catch((error) => {
-    console.log("❌ DB connection error:", error);
+    console.error("❌ DB connection error:", error);
   });
